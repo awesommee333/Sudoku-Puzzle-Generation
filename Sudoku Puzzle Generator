@@ -1,0 +1,137 @@
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+#include <stdio.h>
+#include <stdlib.h>
+const char* fileLoc = "C:\\Users\\Andrew\\vs\\sudoku\\easyLevels.txt";
+FILE *myfile;
+int board[9][9] = { { 0,0,0,0,0,0,0,0,0 },{ 0,0,0,0,0,0,0,0,0 },{ 0,0,0,0,0,0,0,0,0 },{ 0,0,0,0,0,0,0,0,0 },{ 0,0,0,0,0,0,0,0,0 },{ 0,0,0,0,0,0,0,0,0 },{ 0,0,0,0,0,0,0,0,0 },{ 0,0,0,0,0,0,0,0,0 },{ 0,0,0,0,0,0,0,0,0 } };
+void initFile() {
+	if ((myfile = fopen(fileLoc, "w")) == NULL) {
+		printf("didnt open");
+		return;
+	}
+}
+void closeFile() {
+	fclose(myfile);
+}
+void printBoard() {
+	fprintf(myfile, ",\"");
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			fprintf(myfile, "%d", board[i][j]);
+			if (j == 8) {
+				if(i!=8)
+					fprintf(myfile, "//");
+			}
+			else
+				fprintf(myfile, ",");
+		}
+	}
+	fprintf(myfile, "\" ");
+}
+
+void getPossibleMoves(int *possibleMoves[], int x, int y) {
+	int cpX = x / 3;
+	cpX *= 3;
+	int cpY = y / 3;
+	cpY *= 3;
+	int cpB[3][3];
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 3; j++)
+			cpB[i][j] = board[cpX + i][cpY + j];
+	}
+	int psbleMoves[9] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 3; j++) {
+			for (int k = 0; k < 3; k++) {
+				if (psbleMoves[i] == cpB[j][k])
+					psbleMoves[i] = 0;
+			}
+		}
+		for (int j = 0; j < 9; j++) {
+			if (psbleMoves[i] == board[x][j] || psbleMoves[i] == board[j][y])
+				psbleMoves[i] = 0;
+		}
+	}
+	int numMoves = 0;
+	for (int i = 0; i < 9; i++) {
+		if (psbleMoves[i] != 0)
+			numMoves++;
+	}
+	*possibleMoves = new int[numMoves + 1];//(int*)malloc((numMoves+1)*sizeof(int));
+	(*possibleMoves)[0] = numMoves;
+	int prevInt = 1;
+	for (int i = 0; i < 9; i++) {
+		if (psbleMoves[i] != 0) {
+			(*possibleMoves)[prevInt] = psbleMoves[i];
+			prevInt++;
+		}
+	}
+}
+
+void generateBoard(int ** prevMoves, int num) {
+	/*for (int i = 0; i < 9; i++)
+		board[0][i] = i+1;
+	for (int i = 1; i < 9; i++) {
+		for (int j = 0; j < 9; j++)
+			board[i][j] = 0;
+	}*/
+	int prevMove;
+	int *possibleMoves=new int[10];
+	//int **prevMoves = new int*[72];
+	int **prevMovesLeft = new int*[72];
+	for (int i = 0; i < 72; i++) {
+		if (prevMoves[i] == NULL)
+			break;
+		for (int j = 0; j < prevMoves[i][0]; j++)
+			prevMovesLeft[i][j] = prevMoves[i][0];
+	}
+	//for (int i = 0; i < 72; i++) {
+		getPossibleMoves(&(prevMoves[num]), num/9, num%9);
+		for (int j = i; j > 8 && prevMoves[i][0]==0; j--) {
+
+		}
+	//}
+	for (int i = 0; i < 72; i++) {
+		if (prevMoves[i] != NULL)
+			delete(prevMoves[i]);
+		if (prevMovesLeft[i] != NULL)
+			delete(prevMovesLeft[i]);
+	}
+	delete(prevMoves);
+	delete(prevMovesLeft);
+	/*for (int i = 1; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			prevMove = 0;
+			getPossibleMoves(&possibleMoves, i, j);
+			while (possibleMoves[0] == 0) {
+				prevMove++;
+				if (prevMoves[0] < prevMove) {
+					//generateBoard();
+					return;
+				}
+				else {
+					if (j != 0)
+						board[i][j-1] = prevMoves[prevMove + 1];
+					else
+						board[i - 1][8] = prevMoves[prevMove+1];
+					getPossibleMoves(&possibleMoves, i, j);
+				}
+			}
+			board[i][j] = possibleMoves[1];
+			prevMove = 0;
+			delete(prevMoves);
+			prevMoves = possibleMoves;
+		}
+	}*/
+	delete(possibleMoves);
+}
+
+int main() {
+	initFile();
+	generateBoard();
+	printBoard();
+	closeFile();
+	return 0;
+}
