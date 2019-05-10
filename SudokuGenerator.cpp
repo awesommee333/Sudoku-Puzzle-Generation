@@ -1,3 +1,7 @@
+// Sudoku Generator.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
+#include "pch.h"
 #include <iostream>
 #include <set>
 #include <vector>
@@ -149,7 +153,7 @@ bool remSquares(vector<int>& puzzle, int squaresLeft, vector<int>& remOrder) {
 	return false;
 }
 
-vector<int> generatePuzzle(int numSquares) {
+vector<vector<int>> generatePuzzle(int numSquares) {
 	srand(time(NULL));
 	vector<int> puzzle(81, 0);
 	solvePuzzle(puzzle, 0, 3);
@@ -164,7 +168,7 @@ vector<int> generatePuzzle(int numSquares) {
 		shuffle(remOrder);
 	} while (!remSquares(puzzle, puzzle.size()-numSquares, remOrder));
 	
-	return puzzle;
+	return { puzzle, puzzleCopy };
 }
 
 int main()
@@ -189,31 +193,48 @@ int main()
 		int min, max;
 		cin >> min >> max;
 
+		cout << "Enter num puzzles: ";
+		int numPuzzles;
+		cin >> numPuzzles;
+
 		start_t = clock();
 
-		vector<int> sizes(81, 0);
-		for (int i = 0; i < 81; i++)
+		vector<int> sizes(numPuzzles, 0);
+		for (int i = 0; i < numPuzzles; i++)
 			sizes[i] = min + rand() % (max + 1 - min);
 		sort(sizes.rbegin(), sizes.rend());
 
-		for (int i = 0; i < 81; i++) {
-			vector<int> puzzle = generatePuzzle(sizes[i]);
+		for (int i = 0; i < numPuzzles; i++) {
+			vector<vector<int>> puzzle = generatePuzzle(sizes[i]);
 			end_t = clock();
-
-			fout << "\"";
+			
+			fout << "{[\"starting\"]={";
 			for (int r = 0; r < 9; r++) {
 				for (int c = 0; c < 9; c++) {
-					fout << puzzle[9 * r + c];
+					fout << puzzle[0][9 * r + c];
 					if (c != 8)
 						fout << ',';
 				}
 				if (r != 8)
-					fout << "//";
+					fout << ",";
 			}
-			if (i != 80)
-				fout << "\", ";
+
+			fout << "}, [\"solved\"]={";
+
+			for (int r = 0; r < 9; r++) {
+				for (int c = 0; c < 9; c++) {
+					fout << puzzle[1][9 * r + c];
+					if (c != 8)
+						fout << ',';
+				}
+				if (r != 8)
+					fout << ",";
+			}
+
+			if (i != numPuzzles-1)
+				fout << "}}, ";
 			else
-				fout << "\"";
+				fout << "}}";
 			cout << i << '\n';
 		}
 
