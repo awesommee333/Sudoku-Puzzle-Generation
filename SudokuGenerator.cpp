@@ -1,3 +1,7 @@
+// Sudoku Generator.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
+#include "pch.h"
 #include <iostream>
 #include <set>
 #include <vector>
@@ -150,7 +154,6 @@ bool remSquares(vector<int>& puzzle, int squaresLeft, vector<int>& remOrder) {
 }
 
 vector<vector<int>> generatePuzzle(int numSquares) {
-	srand(time(NULL));
 	vector<int> puzzle(81, 0);
 	solvePuzzle(puzzle, 0, 3);
 
@@ -170,11 +173,11 @@ vector<vector<int>> generatePuzzle(int numSquares) {
 int main()
 {
 
+	srand(time(NULL));
+
 	while (true) {
 
 		clock_t start_t, end_t;
-
-		srand(time(NULL));
 
 		cout << "Enter difficulty name(type quit to quit): ";
 		string s;
